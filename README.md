@@ -58,7 +58,7 @@ In your project folder run:
 Clone the Repository
 ```bash
 git clone https://github.com/dhatrishv/Smart_Contract_Batch-B2.git
-cd rps-blockchain-game
+cd Smart_Contract_Batch-B2
 python -m http.server 8000
 \\ open the browser and check
 http://localhost:8000
