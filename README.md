@@ -93,7 +93,7 @@ http://localhost:8000
 ```
 /project-root
 ├─ index.html
-├─ Smart_contract.sol          # frontend logic (ethers.js)
+├─ Smart_contract.sol         
 └─ README.md
 ```
 
