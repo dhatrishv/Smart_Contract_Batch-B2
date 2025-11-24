@@ -62,7 +62,7 @@ cd rps-blockchain-game
 python -m http.server 8000
 \\ open the browser and check
 http://localhost:8000
-
+```
 ---
 
 ## 5️⃣ Connect Wallet & Play
