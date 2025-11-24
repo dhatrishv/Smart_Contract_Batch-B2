@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rock Paper Scissors - Sepolia dApp</title>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #0b0b0b, #1a1f24, #000000);
+            background-size: 300% 300%;
+            animation: gradientMove 12s ease infinite;
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        h1 {
+            font-size: 42px;
+            color: #00eaff;
+        }
+
+        .card {
+            width: 450px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0px 0px 30px rgba(0, 255, 255, 0.18);
+            backdrop-filter: blur(12px);
+        }
+
+        /* Avatar */
+        .avatar {
+            font-size: 80px;
+            margin: 10px 0;
+            display: inline-block;
+            animation: idleBounce 3s ease-in-out infinite;
+        }
+
+        @keyframes idleBounce {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes angryShake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+        }
+
+        @keyframes happyWiggle {
+            0%,100% { transform: rotate(0deg); }
+            25% { transform: rotate(12deg); }
+            50% { transform: rotate(-12deg); }
+            75% { transform: rotate(12deg); }
+        }
+
+        button {
+            padding: 12px 20px;
+            margin: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 10px;
+            border: none;
+            background-color: #00eaff;
+            color: black;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #0099bb;
+            transform: scale(1.05);
+        }
+
+        .scoreboard {
+            margin-top: 25px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .scoreboard span {
+            color: #00ffb7;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        #log {
+            margin-top: 20px;
+            font-size: 20px;
+            min-height: 60px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>Rock • Paper • Scissors</h1>
+
+        <div class="card">
+
+            <div id="avatar" class="avatar">🤖</div>
+
+            <br>
+            <button onclick="connectWallet()">🔗 Connect Wallet</button>
+
+            <div id="wallet" style="margin-top:10px; color:#ffc46b;"></div>
+            <div id="contractBalance" style="margin-top:5px; color:#93ffae;"></div>
+
+            <h3 style="margin-top:20px;">Choose Your Move</h3>
+
+            <button onclick="playRPS(0)">🪨 Rock</button>
+            <button onclick="playRPS(1)">📄 Paper</button>
+            <button onclick="playRPS(2)">✂️ Scissors</button>
+
+            <div id="log"></div>
+
+            <div class="scoreboard">
+                Wins: <span id="wins">0</span><br>
+                Losses: <span id="losses">0</span><br>
+                Draws: <span id="draws">0</span><br>
+                Streak: <span id="streak">0</span>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+
+    <script>
+        const CONTRACT_ADDRESS = "0x12CeB3CB5BF72878b5ab0e2112d12eE79a946224";  
+
+        
+        const ABI = [
+            "function play(uint256 _playerMove) external returns (uint256)",
+            "function getBalance() external view returns (uint256)",
+            "function fund() external payable",
+            "event Played(address indexed player, uint256 playerMove, uint256 computerMove, uint256 result, uint256 streak)"
+        ];
+
+        let provider, signer, contract;
+
+        let wins = 0, losses = 0, draws = 0;
+
+        function animateAvatar(type) {
+            const avatar = document.getElementById("avatar");
+
+            if (type === "win") avatar.style.animation = "happyWiggle 0.8s ease";
+            else if (type === "loss") avatar.style.animation = "angryShake 0.7s ease";
+            else avatar.style.animation = "idleBounce 3s ease-in-out infinite";
+
+            setTimeout(() => {
+                avatar.style.animation = "idleBounce 3s ease-in-out infinite";
+            }, 900);
+        }
+
+        async function connectWallet() {
+            if (!window.ethereum) return alert("Install MetaMask!");
+
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            signer = provider.getSigner();
+            contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+            document.getElementById("wallet").innerHTML =
+                "Connected: " + await signer.getAddress();
+
+            updateContractBalance();
+            log("Wallet connected successfully!");
+        }
+
+        async function updateContractBalance() {
+            // Contract balance display disabled
+        }
+
+        function log(msg) {
+            document.getElementById("log").innerHTML = msg;
+        }
+
+        async function playRPS(move) {
+            if (!contract) return log("⚠️ Connect your wallet first!");
+
+            log("⏳ Waiting for blockchain confirmation...");
+
+            try {
+                const tx = await contract.play(move);
+                const receipt = await tx.wait();
+
+                let iface = new ethers.utils.Interface(ABI);
+                let computerMove, result, streak;
+
+                for (let logEntry of receipt.logs) {
+                    try {
+                        const parsed = iface.parseLog(logEntry);
+                        if (parsed.name === "Played") {
+                            computerMove = parsed.args.computerMove;
+                            result = parsed.args.result;
+                            streak = parsed.args.streak;
+                        }
+                    } catch {}
+                }
+
+                if (result === undefined) {
+                    log("⚠️ Game result not found in transaction logs.");
+                    return;
+                }
+
+                const names = ["Rock", "Paper", "Scissors"];
+                const icons = ["🪨", "📄", "✂️"];
+
+                let msg;
+
+                if (result == 1) {
+                    wins++;
+                    msg = "🎉 You WIN!";
+                    animateAvatar("loss");
+                } else if (result == 2) {
+                    losses++;
+                    msg = "😢 You Lost!";
+                    animateAvatar("win");
+                } else {
+                    draws++;
+                    msg = "🤝 Draw!";
+                    animateAvatar("draw");
+                }
+
+                log(`
+                    <b>You:</b> ${icons[move]} ${names[move]}<br>
+                    <b>Computer:</b> ${icons[computerMove]} ${names[computerMove]}<br><br>
+                    <b>${msg}</b><br>
+                    ⭐ Streak: ${streak}
+                `);
+
+                document.getElementById("wins").innerText = wins;
+                document.getElementById("losses").innerText = losses;
+                document.getElementById("draws").innerText = draws;
+                document.getElementById("streak").innerText = streak;
+
+                updateContractBalance();
+
+            } catch (err) {
+                log("❌ Error: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
