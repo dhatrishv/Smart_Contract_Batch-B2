@@ -19,7 +19,7 @@ Before starting, make sure you have:
 - Sepolia ETH (get it from a Sepolia faucet).
 - Python 3.x installed (used to run a simple local HTTP server).
 - A deployed smart contract address (see "Deploy the Smart Contract").
-
+  
 ---
 
 ## 2️⃣ Deploy the Smart Contract
@@ -55,15 +55,13 @@ Browsers block blockchain scripts loaded from `file://`, so serve the frontend o
 
 In your project folder run:
 
+Clone the Repository
 ```bash
+git clone https://github.com/yourusername/rps-blockchain-game.git
+cd rps-blockchain-game
 python -m http.server 8000
-```
-
-Then open the game in your browser:
-
-```
+\\ open the browser and check
 http://localhost:8000
-```
 
 ---
 
