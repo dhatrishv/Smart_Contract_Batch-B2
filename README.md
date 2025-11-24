@@ -24,8 +24,8 @@ Before starting, make sure you have:
 
 ## 2️⃣ Deploy the Smart Contract
 1. Open Remix IDE: `https://remix.ethereum.org`  
-2. Create a new file called `RPSgame.sol`.  
-3. Copy & paste your full Solidity contract code into `RPSgame.sol`.  
+2. Create a new file called `Smart_contract.sol`.  
+3. Copy & paste your full Solidity contract code into `Smart_contract.sol`.  
    - Compile the contract with **Solidity 0.8.19**.
 4. Go to the **Deploy & Run** panel.
    - Set **Environment** to **Injected Provider (MetaMask)**.
@@ -95,9 +95,7 @@ http://localhost:8000
 ```
 /project-root
 ├─ index.html
-├─ app.js          # frontend logic (ethers.js)
-├─ contractABI.json
-├─ style.css
+├─ Smart_contract.sol          # frontend logic (ethers.js)
 └─ README.md
 ```
 
@@ -112,10 +110,3 @@ Contributions are welcome! Suggested workflow:
 
 ---
 
-## 📄 License
-This project is released under the **MIT License**. See `LICENSE` for details.
-
----
-
-## 📬 Contact
-If you have questions or need help, open an issue in the repository or contact the maintainer (add your preferred contact method here).
